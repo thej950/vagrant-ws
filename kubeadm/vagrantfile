@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.ssh.insert_key = false
+  
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+
+  # Control Machine
+  config.vm.define "K8s-Master" do |app|
+    app.vm.hostname = "K8s-Master"
+    app.vm.box = "bento/centos-stream-8"
+    app.vm.network :private_network, ip: "10.10.10.50"
+  end
+
+  # Load Balancer
+  config.vm.define "K8s-Slave-1" do |app|
+    app.vm.hostname = "K8s-Slave-1"
+    app.vm.box = "bento/centos-stream-8"
+    app.vm.network :private_network, ip: "10.10.10.51"
+  end
+
+  # Application Server 1
+  config.vm.define "K8s-Slave-2" do |app|
+    app.vm.hostname = "K8s-Slave-2"
+    app.vm.box = "bento/centos-stream-8"
+    app.vm.network :private_network, ip: "10.10.10.52"
+  end
+end
+

@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+config.ssh.insert_key = false
+config.vm.provider :virtualbox do |vb|
+vb.customize ["modifyvm", :id, "--memory", "2048"]
+ end
+
+ # control
+ config.vm.define "Docker-Master" do |app|
+ app.vm.hostname = "Docker-Master"
+ app.vm.box = "bento/ubuntu-22.04"
+ app.vm.network :private_network, ip: "10.10.10.50"
+
+ app.vm.provision "shell", path: "docker-setup.sh"
+ end
+ 
+ 
+ # Load Balancer.
+ config.vm.define "Docker-Worker-1" do |app|
+ app.vm.hostname = "Docker-Worker-1"
+ app.vm.box = "bento/ubuntu-22.04"
+ app.vm.network :private_network, ip: "10.10.10.51"
+ 
+
+ app.vm.provision "shell", path: "docker-setup.sh"
+ end
+ 
+ # Application server 1.
+ config.vm.define "Docker-Worker-2" do |app|
+ app.vm.hostname = "Docker-Worker-2"
+ app.vm.box = "bento/ubuntu-22.04"
+ app.vm.network :private_network, ip: "10.10.10.52"
+
+
+ app.vm.provision "shell", path: "docker-setup.sh"
+ end
+
+ 
+ end

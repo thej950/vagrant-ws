@@ -1,0 +1,19 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.ssh.insert_key = false
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+
+  config.vm.define "Jenkins" do |app|
+    app.vm.hostname = "Jenkins"
+    app.vm.box = "bento/ubuntu-22.04"
+    app.vm.network :private_network, ip: "10.10.10.45"
+    app.vm.network "forwarded_port", guest: 8080, host: 8080
+
+    app.vm.provision "shell", path: "jenkins-setup.sh" # Provisioning script
+  end
+end
+

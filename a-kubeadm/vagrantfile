@@ -1,0 +1,91 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.ssh.insert_key = false
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+
+  # Control Machine
+  config.vm.define "K8s-Master" do |app|
+    app.vm.hostname = "K8s-Master"
+    app.vm.box = "bento/centos-stream-8"
+    app.vm.network :private_network, ip: "10.10.10.50"
+    
+    app.vm.provision "shell", inline: <<-SHELL
+      #!/bin/bash
+      yum install -y -q yum-utils device-mapper-persistent-data lvm2 > /dev/null 2>&1
+      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo > /dev/null 2>&1
+      yum install -y -q docker-ce >/dev/null 2>&1
+      systemctl start docker
+      systemctl enable docker
+      setenforce 0
+      sed -i --follow-symlinks 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
+      sed -i '/swap/d' /etc/fstab
+      swapoff -a
+      echo -e "net.bridge.bridge-nf-call-ip6tables = 1 \nnet.bridge.bridge-nf-call-iptables = 1" >>/etc/sysctl.d/kubernetes.conf
+      echo -e "[kubernetes] \nname=Kubernetes \nbaseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64 \nenabled=1 \ngpgcheck=1 \nrepo_gpgcheck=1 \ngpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+          https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg" >>/etc/yum.repos.d/kubernetes.repo
+      yum install -y kubeadm-1.19.1 kubelet-1.19.1 kubectl-1.19.1
+      systemctl start kubelet
+      systemctl enable kubelet
+    SHELL
+  end
+
+  # Load Balancer
+  config.vm.define "K8s-Slave-1" do |app|
+    app.vm.hostname = "K8s-Slave-1"
+    app.vm.box = "bento/centos-stream-8"
+    app.vm.network :private_network, ip: "10.10.10.51"
+    
+    app.vm.provision "shell", inline: <<-SHELL
+      #!/bin/bash
+      yum install -y -q yum-utils device-mapper-persistent-data lvm2 > /dev/null 2>&1
+      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo > /dev/null 2>&1
+      yum install -y -q docker-ce >/dev/null 2>&1
+      systemctl start docker
+      systemctl enable docker
+      setenforce 0
+      sed -i --follow-symlinks 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
+      sed -i '/swap/d' /etc/fstab
+      swapoff -a
+      echo -e "net.bridge.bridge-nf-call-ip6tables = 1 \nnet.bridge.bridge-nf-call-iptables = 1" >>/etc/sysctl.d/kubernetes.conf
+      echo -e "[kubernetes] \nname=Kubernetes \nbaseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64 \nenabled=1 \ngpgcheck=1 \nrepo_gpgcheck=1 \ngpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+          https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg" >>/etc/yum.repos.d/kubernetes.repo
+      yum install -y kubeadm-1.19.1 kubelet-1.19.1 kubectl-1.19.1
+      systemctl start kubelet
+      systemctl enable kubelet
+    SHELL
+  end
+
+  # Application Server 1
+  config.vm.define "K8s-Slave-2" do |app|
+    app.vm.hostname = "K8s-Slave-2"
+    app.vm.box = "bento/centos-stream-8"
+    app.vm.network :private_network, ip: "10.10.10.52"
+    
+    app.vm.provision "shell", inline: <<-SHELL
+      #!/bin/bash
+      yum install -y -q yum-utils device-mapper-persistent-data lvm2 > /dev/null 2>&1
+      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo > /dev/null 2>&1
+      yum install -y -q docker-ce >/dev/null 2>&1
+      systemctl start docker
+      systemctl enable docker
+      setenforce 0
+      sed -i --follow-symlinks 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
+      sed -i '/swap/d' /etc/fstab
+      swapoff -a
+      echo -e "net.bridge.bridge-nf-call-ip6tables = 1 \nnet.bridge.bridge-nf-call-iptables = 1" >>/etc/sysctl.d/kubernetes.conf
+      echo -e "[kubernetes] \nname=Kubernetes \nbaseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64 \nenabled=1 \ngpgcheck=1 \nrepo_gpgcheck=1 \ngpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+          https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg" >>/etc/yum.repos.d/kubernetes.repo
+      yum install -y kubeadm-1.19.1 kubelet-1.19.1 kubectl-1.19.1
+      systemctl start kubelet
+      systemctl enable kubelet
+    SHELL
+  end
+end
+

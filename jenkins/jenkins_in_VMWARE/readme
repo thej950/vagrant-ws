@@ -1,0 +1,8 @@
+To setup machine inn vmware 
+    -->Changed the provider from virtualbox to vmware_desktop.
+    -->In the vmware_desktop block, set the memory size using vmx["memsize"].
+Make sure you have the VMware provider installed in your Vagrant environment. You can install it with the following command:
+
+    # vagrant plugin install vagrant-vmware-desktop
+
+After making these changes, you should be able to use VMware as your provider for the virtual machine.

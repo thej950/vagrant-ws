@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.ssh.insert_key = false
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+  end
+
+  # Define a list of machine names
+  machine_names = ["machine1", "machine2", "machine5"]
+
+  # Loop through the machine names and define each one
+  machine_names.each do |name|
+    config.vm.define name do |app|
+      app.vm.hostname = name
+      app.vm.box = "bento/ubuntu-22.04"
+      app.vm.network :private_network, ip: "10.10.10.#{machine_names.index(name) + 50}"
+    end
+  end
+end
+

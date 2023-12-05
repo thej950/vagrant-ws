@@ -1,0 +1,15 @@
+Vagrant.configure("2") do |config|
+    config.vm.define "prometheousServer" do |prometheousServer|
+        prometheousServer.vm.box_download_insecure = true
+        prometheousServer.vm.box = "hashicorp/bionic64"
+        prometheousServer.vm.network "private_network", ip: "10.10.10.60"
+        prometheousServer.vm.network "forwarded_port", guest:9090, host: 9090
+        prometheousServer.vm.network "forwarded_port", guest:9100, host: 9100
+        prometheousServer.vm.network "forwarded_port", guest:3000, host: 3000
+        prometheousServer.vm.hostname = "prometheousServer"
+        prometheousServer.vm.provider "virtualbox" do |v|
+            v.name = "prometheousServer"
+            v.memory = 2048
+        end
+    end
+end

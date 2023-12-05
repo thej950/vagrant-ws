@@ -1,0 +1,26 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.ssh.insert_key = false
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "4096"]
+  end
+
+  # Define the virtual machine
+  config.vm.define "K8s-Minikube" do |app|
+    app.vm.hostname = "K8s-Minikube"
+    app.vm.box = "bento/ubuntu-22.04"
+    app.vm.network :private_network, ip: "10.10.10.50"
+
+    # Provision the virtual machine with the installation script
+    app.vm.provision "shell", path: "install-minikube.sh"
+
+    # Port forwarding for Minikube
+    app.vm.network "forwarded_port", guest: 8443, host: 8443
+    # Open a range of ports from 30000 to 32676
+  end
+end
+

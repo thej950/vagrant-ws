@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+config.ssh.insert_key = false
+config.vm.provider :virtualbox do |vb|
+vb.customize ["modifyvm", :id, "--memory", "1024"]
+ end
+
+ # control
+ config.vm.define "Ansible-Controller" do |app|
+ app.vm.hostname = "Ansible-Controller"
+ app.vm.box = "bento/ubuntu-22.04"
+ app.vm.network :private_network, ip: "10.10.10.60"
+
+ app.vm.provision "shell", path: "ansible-script.sh"
+
+ end
+ 
+ 
+ # Load Balancer.
+ config.vm.define "Ansible-Worker-1" do |app|
+ app.vm.hostname = "Ansibl-Worker-2"
+ app.vm.box = "bento/ubuntu-22.04"
+ app.vm.network :private_network, ip: "10.10.10.61"
+ end
+ 
+ # Application server 1.
+ config.vm.define "Ansible-Worker-2" do |app|
+ app.vm.hostname = "Ansible-Worker-2"
+ app.vm.box = "bento/ubuntu-22.04"
+ app.vm.network :private_network, ip: "10.10.10.62"
+ end
+
+ 
+ end
